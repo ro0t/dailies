@@ -3,24 +3,74 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Beige, mindful theme */
+  --theme-bg: #faf8f5;
+  --theme-surface: #f5f1eb;
+  --theme-text: #2c2825;
+  --theme-muted: #6b6560;
+  --theme-accent: #8b7355;
+  --theme-border: #e5dfd6;
+  /* Type scale — larger base for readability */
+  --text-base: 1.125rem;   /* 18px */
+  --text-sm: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.875rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-theme-bg: var(--theme-bg);
+  --color-theme-surface: var(--theme-surface);
+  --color-theme-text: var(--theme-text);
+  --color-theme-muted: var(--theme-muted);
+  --color-theme-accent: var(--theme-accent);
+  --color-theme-border: var(--theme-border);
+  --font-sans: var(--font-primary);
+  --font-mono: var(--font-primary);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1917;
+    --foreground: #f5f1eb;
+    --theme-bg: #1a1917;
+    --theme-surface: #252320;
+    --theme-text: #f5f1eb;
+    --theme-muted: #a39e96;
+    --theme-accent: #c4a574;
+    --theme-border: #3d3935;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-primary), Georgia, "Times New Roman", serif;
+  font-size: var(--text-base);
+}
+
+/* Subtle transitions for focus/hover */
+button, a, input, [role="button"] {
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* TipTap editor content — same font and type scale as app */
+.tiptap {
+  min-height: 280px;
+  padding: 1rem 0;
+  outline: none;
+  font-family: var(--font-primary), Georgia, "Times New Roman", serif;
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+.tiptap p {
+  margin-bottom: 0.5em;
+}
+.tiptap p:last-child {
+  margin-bottom: 0;
+}
+.tiptap:focus {
+  outline: none;
 }

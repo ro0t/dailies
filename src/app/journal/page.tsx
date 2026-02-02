@@ -1,6 +1,6 @@
 import { getTodayDateString } from "@/lib/date-utils";
 import { redirect } from "next/navigation";
 
-export default async function HomePage() {
+export default function JournalIndexPage() {
   redirect(`/journal/${getTodayDateString()}`);
 }

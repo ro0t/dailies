@@ -1,0 +1,97 @@
+schema: spec-driven
+
+context: |
+  Product: Personal journaling tool
+  Goal: Write daily thoughts with zero friction
+  Principles: Simple, calm, private by default
+
+  Tech stack:
+    - Next.js (App Router)
+    - TypeScript (strict)
+    - Supabase (Auth + Postgres)
+    - TipTap editor
+    - shadcn/ui + Tailwind
+
+  Design philosophy:
+    - Minimal UI
+    - One primary action per screen
+    - No unnecessary settings
+    - Writing is the focus
+
+rules:
+  privacy:
+    - All journal entries are private by default
+    - Users can explicitly unlock an entry to share
+    - Supabase Row Level Security must enforce ownership
+
+  auth:
+    - Authentication handled via Supabase Auth
+    - No custom auth logic
+    - All data access requires authenticated user
+
+  editor:
+    - Use TipTap for all writing
+    - Editor content stored as JSON
+    - No markdown conversion
+    - Autosave is silent and automatic
+
+  ui:
+    - Use shadcn/ui components only
+    - No heavy animations
+    - Neutral beige colors, generous whitespace
+    - Focused writing experience
+    - Simplicity is key
+    - Interactions should always be animated and feel smooth
+
+  data:
+    - One journal entry represents one moment in time
+    - Entries are ordered by creation time
+    - Editing an entry does not create versions
+
+  next:
+    - Use the latest stable version of Next
+    - Prefer server components over client components
+
+specs:
+  journal_entry:
+    fields:
+      - id
+      - user_id
+      - content_json
+      - created_at
+      - is_unlocked
+
+    scenarios:
+      - Given a logged-in user
+        When they write in the editor
+        Then the entry is saved automatically
+
+      - Given a private journal entry
+        When another user attempts to access it
+        Then access is denied
+
+      - Given a journal entry
+        When the user unlocks it
+        Then it becomes shareable via a unique link
+
+design:
+  flows:
+    writing:
+      description: User opens app and starts writing immediately
+      notes:
+        - No required title
+        - No save button
+        - Cursor placed in editor on load
+
+    privacy:
+      description: All entries scoped to user_id
+      enforcement:
+        - Supabase RLS
+        - No client-side filtering
+
+ai:
+  behavior:
+    follow_spec: true
+    prioritize_simplicity: true
+    avoid_feature_creep: true
+    ask_before_adding_features: true
