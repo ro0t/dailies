@@ -22,10 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${literata.variable} min-h-screen bg-[var(--theme-bg)] antialiased text-[var(--theme-text)]`}
+        className={`${literata.variable} grid grid-rows-[auto_1fr] min-h-screen max-h-screen overflow-auto bg-theme-bg antialiased text-theme-text`}
       >
         <Header />
-        {children}
+        <div className="overflow-auto h-full">{children}</div>
       </body>
     </html>
   );

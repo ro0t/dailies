@@ -17,7 +17,9 @@ export async function getTodayEntry(): Promise<JournalEntry | null> {
   return getEntryForDate(getTodayDateString());
 }
 
-export async function getEntryForDate(date: string): Promise<JournalEntry | null> {
+export async function getEntryForDate(
+  date: string
+): Promise<JournalEntry | null> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -51,7 +53,10 @@ export async function upsertTodayEntry(contentJson: unknown): Promise<void> {
   return upsertEntryForDate(getTodayDateString(), contentJson);
 }
 
-export async function upsertEntryForDate(date: string, contentJson: unknown): Promise<void> {
+export async function upsertEntryForDate(
+  date: string,
+  contentJson: unknown
+): Promise<void> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -70,8 +75,29 @@ export async function upsertEntryForDate(date: string, contentJson: unknown): Pr
   );
 }
 
-/** Returns list of entry_date (YYYY-MM-DD) for the current user in the given range (inclusive). */
-export async function getEntryDatesForRange(start: string, end: string): Promise<string[]> {
+/** True if TipTap-style content_json has at least one non-empty text node. */
+function hasTextInContent(content: unknown): boolean {
+  if (!content || typeof content !== "object") return false;
+  const obj = content as Record<string, unknown>;
+  if (
+    obj.type === "text" &&
+    typeof obj.text === "string" &&
+    obj.text.trim().length > 0
+  ) {
+    return true;
+  }
+  const children = obj.content;
+  if (Array.isArray(children)) {
+    return children.some((child) => hasTextInContent(child));
+  }
+  return false;
+}
+
+/** Returns list of entry_date (YYYY-MM-DD) for the current user in the given range (inclusive). Only includes entries that have some text in content. */
+export async function getEntryDatesForRange(
+  start: string,
+  end: string
+): Promise<string[]> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -80,11 +106,14 @@ export async function getEntryDatesForRange(start: string, end: string): Promise
 
   const { data } = await supabase
     .from("journal_entries")
-    .select("entry_date")
+    .select("entry_date, content_json")
     .eq("user_id", user.id)
     .gte("entry_date", start)
     .lte("entry_date", end)
     .order("entry_date", { ascending: true });
 
-  return (data ?? []).map((row) => String(row.entry_date));
+  if (!data) return [];
+  return data
+    .filter((row) => hasTextInContent(row.content_json))
+    .map((row) => String(row.entry_date));
 }

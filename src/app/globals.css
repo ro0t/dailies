@@ -4,18 +4,25 @@
   --background: #ffffff;
   --foreground: #171717;
   /* Beige, mindful theme */
-  --theme-bg: #faf8f5;
+  --theme-bg: rgb(250, 248, 245);
   --theme-surface: #f5f1eb;
-  --theme-text: #2c2825;
-  --theme-muted: #6b6560;
+  --theme-text: #6a2e02;
+  --theme-muted: #2d1e11;
   --theme-accent: #8b7355;
   --theme-border: #e5dfd6;
   /* Type scale — larger base for readability */
-  --text-base: 1.125rem;   /* 18px */
+  --text-base: 1.125rem; /* 18px */
   --text-sm: 1rem;
   --text-lg: 1.25rem;
   --text-xl: 1.5rem;
   --text-2xl: 1.875rem;
+
+  /* Animations: out = same speed, in = faster */
+  --journal-duration-out: 340ms;
+  --journal-duration-in: 120ms;
+  --journal-ease-in: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  --journal-ease-out: cubic-bezier(0.165, 0.84, 0.44, 1);
+  perspective: 1400px;
 }
 
 @theme inline {
@@ -52,8 +59,12 @@ body {
 }
 
 /* Subtle transitions for focus/hover */
-button, a, input, [role="button"] {
-  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+button,
+a,
+input,
+[role="button"] {
+  transition: color 0.15s ease, background-color 0.15s ease,
+    border-color 0.15s ease, opacity 0.15s ease;
 }
 
 /* TipTap editor content — same font and type scale as app */
@@ -73,4 +84,111 @@ button, a, input, [role="button"] {
 }
 .tiptap:focus {
   outline: none;
+}
+
+/* Character motion: blur-to-crisp on newly typed text (view-only, not persisted) */
+.char-motion {
+  animation: char-motion-in 150ms ease-out forwards;
+}
+
+@keyframes char-motion-in {
+  from {
+    filter: blur(1.1px);
+    opacity: 0.5;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+/* View Transitions: paper-style sheet switch for journal date navigation */
+.journal-sheet {
+  view-transition-name: journal-sheet;
+}
+
+::view-transition-old(journal-sheet),
+::view-transition-new(journal-sheet) {
+  border-radius: 0.5rem;
+  background: var(--theme-bg);
+  animation-fill-mode: forwards;
+  transform-style: preserve-3d;
+}
+
+::view-transition-old(journal-sheet) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  animation-name: journal-sheet-out;
+  animation-duration: var(--journal-duration-out);
+  animation-timing-function: var(--journal-ease-out);
+}
+
+::view-transition-new(journal-sheet) {
+  background: rgb(250, 248, 245, 0.7);
+  backdrop-filter: blur(10px);
+  animation-name: journal-sheet-in;
+  animation-duration: var(--journal-duration-in);
+  animation-timing-function: var(--journal-ease-in);
+}
+
+::view-transition-image-pair(journal-sheet) {
+  isolation: isolate;
+}
+
+@keyframes journal-sheet-out {
+  0% {
+    transform: translateX(0) rotateZ(0deg) rotateY(0deg) scale(1);
+    filter: blur(0);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+  }
+
+  /* 55% {
+    transform: translateX(-110px) translateY(-6px) rotateZ(-6deg) rotateY(-6deg)
+      scale(0.975);
+    filter: blur(6px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  } */
+
+  100% {
+    transform: translateX(-240px) translateY(-14px) rotateZ(-12deg)
+      rotateY(-16deg) scale(0.94);
+    filter: blur(12px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    opacity: 0;
+  }
+}
+
+@keyframes journal-sheet-in {
+  0% {
+    transform: translateY(14px) scale(1.065);
+    filter: blur(3px);
+  }
+
+  55% {
+    transform: translateY(6px) scale(1.018);
+    filter: blur(2px);
+  }
+
+  85% {
+    transform: translateY(1px) scale(1.004);
+    filter: blur(0.3px);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journal-sheet {
+    --journal-duration-out: 300ms;
+    --journal-duration-in: 200ms;
+  }
+
+  ::view-transition-old(journal-sheet),
+  ::view-transition-new(journal-sheet) {
+    animation-timing-function: ease-out;
+    filter: none !important;
+    transform: none !important;
+  }
 }
